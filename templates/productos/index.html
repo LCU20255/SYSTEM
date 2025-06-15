@@ -1,0 +1,235 @@
+{% extends 'layout.html' %}
+
+{% block title %}Productos - Sistema de Ferretería{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-boxes me-2"></i>Productos</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
+        <i class="fas fa-plus me-1"></i>Nuevo Producto
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio Compra</th>
+                        <th>Precio Venta</th>
+                        <th>Stock</th>
+                        <th>Stock Mínimo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.codigo }}</td>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.categoria_nombre }}</td>
+                        <td>$ {{ producto.precio_compra }}</td>
+                        <td>$ {{ producto.precio_venta }}</td>
+                        <td>{{ producto.stock }}</td>
+                        <td>{{ producto.stock_minimo }}</td>
+                        <td>
+                            {% if producto.stock == 0 %}
+                            <span class="badge bg-danger">Agotado</span>
+                            {% elif producto.stock <= producto.stock_minimo %}
+                            <span class="badge bg-warning text-dark">Stock bajo</span>
+                            {% else %}
+                            <span class="badge bg-success">Disponible</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick="editarProducto({{ producto.id }}, '{{ producto.nombre }}', '{{ producto.descripcion }}', {{ producto.precio_compra }}, {{ producto.precio_venta }}, {{ producto.stock }}, {{ producto.stock_minimo }}, {{ producto.categoria_id }})" data-bs-toggle="modal" data-bs-target="#modalEditarProducto">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form method="post" action="{{ url_for('eliminar_producto', id=producto.id) }}" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar este producto?')">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear Producto -->
+<div class="modal fade" id="modalCrearProducto" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{{ url_for('crear_producto') }}">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="codigo" class="form-label">Código *</label>
+                                <input type="text" class="form-control" id="codigo" name="codigo" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="categoria_id" class="form-label">Categoría *</label>
+                                <select class="form-select" id="categoria_id" name="categoria_id" required>
+                                    <option value="">Seleccionar categoría</option>
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="precio_compra" class="form-label">Precio de Compra *</label>
+                                <input type="number" step="0.01" class="form-control" id="precio_compra" name="precio_compra" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="precio_venta" class="form-label">Precio de Venta *</label>
+                                <input type="number" step="0.01" class="form-control" id="precio_venta" name="precio_venta" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="stock" class="form-label">Stock Inicial *</label>
+                                <input type="number" class="form-control" id="stock" name="stock" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="stock_minimo" class="form-label">Stock Mínimo *</label>
+                                <input type="number" class="form-control" id="stock_minimo" name="stock_minimo" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Producto -->
+<div class="modal fade" id="modalEditarProducto" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" id="formEditarProducto">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_categoria_id" class="form-label">Categoría *</label>
+                                <select class="form-select" id="edit_categoria_id" name="categoria_id" required>
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_nombre" class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="edit_descripcion" name="descripcion" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_precio_compra" class="form-label">Precio de Compra *</label>
+                                <input type="number" step="0.01" class="form-control" id="edit_precio_compra" name="precio_compra" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_precio_venta" class="form-label">Precio de Venta *</label>
+                                <input type="number" step="0.01" class="form-control" id="edit_precio_venta" name="precio_venta" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_stock" class="form-label">Stock *</label>
+                                <input type="number" class="form-control" id="edit_stock" name="stock" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_stock_minimo" class="form-label">Stock Mínimo *</label>
+                                <input type="number" class="form-control" id="edit_stock_minimo" name="stock_minimo" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editarProducto(id, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, categoria_id) {
+    document.getElementById('formEditarProducto').action = '/productos/editar/' + id;
+    document.getElementById('edit_nombre').value = nombre;
+    document.getElementById('edit_descripcion').value = descripcion;
+    document.getElementById('edit_precio_compra').value = precio_compra;
+    document.getElementById('edit_precio_venta').value = precio_venta;
+    document.getElementById('edit_stock').value = stock;
+    document.getElementById('edit_stock_minimo').value = stock_minimo;
+    document.getElementById('edit_categoria_id').value = categoria_id;
+}
+
+// DataTable para búsqueda y filtros
+$(document).ready(function() {
+    $('#tablaProductos').DataTable({
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        },
+        responsive: true,
+        pageLength: 25
+    });
+});
+</script>
+{% endblock %}

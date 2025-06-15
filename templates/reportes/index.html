@@ -1,0 +1,162 @@
+{% extends 'layout.html' %}
+
+{% block title %}Reportes - Sistema de Ferretería{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-chart-bar me-2"></i>Reportes</h1>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Ventas Diarias</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Genere reportes de ventas por día específico con opción de exportar a PDF o CSV.</p>
+                <form method="post" action="{{ url_for('reporte_ventas_diarias') }}">
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" value="{{ now[:10] }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="formato" class="form-label">Formato</label>
+                        <select class="form-select" id="formato" name="formato">
+                            <option value="">Ver en pantalla</option>
+                            <option value="pdf">Descargar PDF</option>
+                            <option value="csv">Descargar CSV</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-chart-line me-1"></i>Generar Reporte
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Productos con Stock Bajo</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Reporte de productos que necesitan reposición urgente.</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('reporte_productos_stock_bajo') }}" class="btn btn-warning">
+                        <i class="fas fa-eye me-1"></i>Ver Reporte
+                    </a>
+                    <a href="{{ url_for('reporte_productos_stock_bajo', formato='pdf') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-file-pdf me-1"></i>Descargar PDF
+                    </a>
+                    <a href="{{ url_for('reporte_productos_stock_bajo', formato='csv') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-file-csv me-1"></i>Descargar CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Ventas por Período</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Reporte de ventas en un rango de fechas específico.</p>
+                <form method="post" action="{{ url_for('reporte_ventas_periodo') }}">
+                    <div class="mb-3">
+                        <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="formato_periodo" class="form-label">Formato</label>
+                        <select class="form-select" id="formato_periodo" name="formato">
+                            <option value="">Ver en pantalla</option>
+                            <option value="pdf">Descargar PDF</option>
+                            <option value="csv">Descargar CSV</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-chart-area me-1"></i>Generar Reporte
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Productos Más Vendidos</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Reporte de los productos con mayor rotación.</p>
+                <form method="post" action="{{ url_for('reporte_productos_mas_vendidos') }}">
+                    <div class="mb-3">
+                        <label for="limite" class="form-label">Cantidad de productos</label>
+                        <select class="form-select" id="limite" name="limite">
+                            <option value="10">Top 10</option>
+                            <option value="20">Top 20</option>
+                            <option value="50">Top 50</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="formato_vendidos" class="form-label">Formato</label>
+                        <select class="form-select" id="formato_vendidos" name="formato">
+                            <option value="">Ver en pantalla</option>
+                            <option value="pdf">Descargar PDF</option>
+                            <option value="csv">Descargar CSV</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info w-100">
+                        <i class="fas fa-trophy me-1"></i>Generar Reporte
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información de Reportes</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-file-pdf text-danger me-1"></i>Formato PDF</h6>
+                        <p class="small text-muted">Ideal para impresión y presentaciones formales. Incluye formato profesional con tablas y gráficos.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-file-csv text-success me-1"></i>Formato CSV</h6>
+                        <p class="small text-muted">Perfecto para análisis en Excel o importar a otros sistemas. Datos en formato de tabla.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-eye text-primary me-1"></i>Ver en Pantalla</h6>
+                        <p class="small text-muted">Visualización rápida con opciones de filtrado y búsqueda en tiempo real.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Establecer fecha de inicio como hace 30 días
+document.addEventListener('DOMContentLoaded', function() {
+    const hoy = new Date();
+    const hace30Dias = new Date(hoy.getTime() - (30 * 24 * 60 * 60 * 1000));
+    
+    document.getElementById('fecha_inicio').value = hace30Dias.toISOString().split('T')[0];
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}
